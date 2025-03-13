@@ -13,6 +13,7 @@ export async function getFilesFromDirectory(
 ): Promise<FileEntry[]> {
   const entries: FileEntry[] = [];
   
+  // Use for-await loop with properly typed AsyncIterable
   for await (const entry of directoryHandle.values()) {
     const entryPath = path ? `${path}/${entry.name}` : entry.name;
     

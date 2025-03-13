@@ -29,8 +29,13 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
           return;
         }
         
-        const text = await readFileContent(file.handle);
-        setContent(text);
+        // Ensure we're only passing a FileSystemFileHandle
+        if (file.handle.kind === 'file') {
+          const text = await readFileContent(file.handle);
+          setContent(text);
+        } else {
+          setError('Cannot read content from a directory.');
+        }
       } catch (err) {
         console.error('Error loading file:', err);
         setError('Failed to load file content.');
