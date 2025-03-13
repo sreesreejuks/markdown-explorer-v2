@@ -6,7 +6,7 @@ import FileViewer from '@/components/FileViewer';
 import FolderHeader from '@/components/FolderHeader';
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 
 const Index = () => {
   const [rootDir, setRootDir] = useState<FileSystemDirectoryHandle | null>(null);
@@ -18,19 +18,20 @@ const Index = () => {
 
   // Check for File System Access API support on component mount
   useEffect(() => {
-    setIsApiSupported('showDirectoryPicker' in window);
+    // More robust check for File System Access API support
+    const isFSASupported = 'showDirectoryPicker' in window || 
+                          (navigator.userAgent.includes('Chrome') && 
+                           parseInt(navigator.userAgent.match(/Chrome\/(\d+)/)?.[1] || '0', 10) >= 86);
+    
+    setIsApiSupported(isFSASupported);
+    
+    // Log information to help debug
+    console.log('User Agent:', navigator.userAgent);
+    console.log('showDirectoryPicker in window:', 'showDirectoryPicker' in window);
+    console.log('API detected as supported:', isFSASupported);
   }, []);
 
   const selectFolder = async () => {
-    if (!isApiSupported) {
-      toast({
-        title: "Browser not supported",
-        description: "Your browser doesn't support the File System Access API. Please use Chrome, Edge, or Opera.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       // Request directory access
       const dirHandle = await window.showDirectoryPicker({
@@ -81,7 +82,20 @@ const Index = () => {
           <AlertTitle>Browser Not Supported</AlertTitle>
           <AlertDescription>
             This application requires the File System Access API, which is not supported in your browser.
-            Please use Chrome 86+, Edge 86+, or Opera 72+.
+            Please use Chrome 86+, Edge 86+, Opera 72+, or Brave 1.22+.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {isApiSupported === true && !rootDir && (
+        <Alert className="m-4">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Getting Started</AlertTitle>
+          <AlertDescription>
+            Click "Select Folder" to open a folder from your computer and explore its contents.
+            <div className="mt-2 text-xs text-muted-foreground">
+              Note for Brave users: Make sure you've enabled "File System Access API" in brave://flags
+            </div>
           </AlertDescription>
         </Alert>
       )}
