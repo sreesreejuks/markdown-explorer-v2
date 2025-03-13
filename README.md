@@ -1,69 +1,70 @@
-# Welcome to your Lovable project
 
-## Project info
+# Folder Finder Wizard
 
-**URL**: https://lovable.dev/projects/c049aa01-fe30-4879-b2de-9d9071d8e6b7
+A web application that allows you to open folders from your local system and browse their contents. The application displays a file explorer that can be toggled on and off, and allows you to view the contents of text files.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Select and open folders from your local filesystem
+- Browse files and folders in a hierarchical tree view
+- View the contents of text files
+- Toggle the file explorer visibility
+- Docker support for easy deployment
 
-**Use Lovable**
+## Local Development
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c049aa01-fe30-4879-b2de-9d9071d8e6b7) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 16+
+- npm or yarn
 
-**Use your preferred IDE**
+### Running the application
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+1. Clone the repository
+2. Install dependencies
+```bash
+npm install
+```
+3. Start the development server
+```bash
 npm run dev
 ```
+4. Open `http://localhost:8080` in your browser
 
-**Edit a file directly in GitHub**
+## Using Docker
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Building and running with Docker
 
-**Use GitHub Codespaces**
+```bash
+# Build the Docker image
+docker build -t folder-finder-wizard .
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Run the container
+docker run -p 8080:80 folder-finder-wizard
+```
 
-## What technologies are used for this project?
+### Using Docker Compose
 
-This project is built with .
+```bash
+# Start the application
+docker-compose up -d
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Stop the application
+docker-compose down
+```
 
-## How can I deploy this project?
+## Browser Compatibility
 
-Simply open [Lovable](https://lovable.dev/projects/c049aa01-fe30-4879-b2de-9d9071d8e6b7) and click on Share -> Publish.
+This application uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) which is currently supported in:
 
-## I want to use a custom domain - is that possible?
+- Chrome 86+
+- Edge 86+
+- Opera 72+
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+It is not supported in Firefox or Safari as of the time of writing.
+
+## Security Notes
+
+- The application only requests read permissions for folders
+- All file operations happen locally in the browser; no data is sent to any server
+- The Docker container serves static files only
