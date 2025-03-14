@@ -150,19 +150,20 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
                   <div className="relative">
                     <pre data-language={language || 'Code'} {...props}>
                       {children}
-                      <button 
-                        onClick={() => {
-                          // Extract the code text from the pre element
-                          const codeElement = (children as React.ReactElement)?.props?.children?.[0];
-                          const codeText = codeElement?.props?.children?.[0] || '';
-                          copyToClipboard(codeText);
-                        }}
-                        className="absolute top-3 right-3 p-1 rounded-md bg-white/10 text-gray-400 hover:text-gray-700 focus:outline-none transition"
-                        title="Copy code"
-                      >
-                        {copiedCode ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      </button>
                     </pre>
+                    <button 
+                      onClick={() => {
+                        // Extract the code text from the pre element
+                        const codeElement = (children as React.ReactElement)?.props?.children?.[0];
+                        const codeText = codeElement?.props?.children?.[0] || '';
+                        copyToClipboard(codeText);
+                      }}
+                      className="absolute top-3 right-3 p-1.5 rounded-md bg-white/10 hover:bg-white/20 text-gray-400 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                      title="Copy code"
+                      aria-label="Copy code to clipboard"
+                    >
+                      {copiedCode ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </button>
                   </div>
                 );
               }
