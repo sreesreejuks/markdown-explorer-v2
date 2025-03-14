@@ -109,7 +109,10 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
           <ReactMarkdown 
             remarkPlugins={[remarkGfm]} 
             rehypePlugins={[rehypeHighlight]}
-            className="prose max-w-none"
+            components={{
+              // This wrapper div applies our custom styles
+              div: ({node, ...props}) => <div className="prose max-w-none" {...props} />
+            }}
           >
             {content || ''}
           </ReactMarkdown>
