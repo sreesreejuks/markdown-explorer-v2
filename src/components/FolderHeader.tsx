@@ -5,6 +5,7 @@ import { Folder, Eye, EyeOff, File } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import HelpModal from './HelpModal';
 import { pickFile } from '@/utils/fileSystem';
+import { Link } from 'react-router-dom';
 
 interface FolderHeaderProps {
   folderName: string | null;
@@ -52,8 +53,6 @@ const FolderHeader: React.FC<FolderHeaderProps> = ({
   return (
     <div className="flex items-center justify-between p-4 border-b bg-white">
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold hidden md:block">Markdown Explorer</h1>
-        
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
@@ -78,6 +77,10 @@ const FolderHeader: React.FC<FolderHeaderProps> = ({
           </Button>
         </div>
       </div>
+
+      <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
+        <h1 className="text-xl font-semibold">Markdown Explorer</h1>
+      </Link>
       
       <div className="flex items-center gap-2">
         <Button

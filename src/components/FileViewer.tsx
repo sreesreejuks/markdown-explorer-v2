@@ -111,7 +111,16 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
             rehypePlugins={[rehypeHighlight]}
             components={{
               // This wrapper div applies our custom styles
-              div: ({node, ...props}) => <div className="prose max-w-none" {...props} />
+              div: ({node, ...props}) => <div className="prose max-w-none" {...props} />,
+              // Add data-language attribute to the pre tag for Mac OS style window title
+              pre: ({node, children, className, ...props}) => {
+                const language = className ? className.replace('language-', '') : '';
+                return (
+                  <pre data-language={language || 'Code'} {...props}>
+                    {children}
+                  </pre>
+                );
+              }
             }}
           >
             {content || ''}
