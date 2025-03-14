@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { FileEntry, getFilesFromDirectory } from '@/utils/fileSystem';
+import { FileEntry, getFilesFromDirectory, pickFile } from '@/utils/fileSystem';
 import FileExplorer from '@/components/FileExplorer';
 import FileViewer from '@/components/FileViewer';
 import FolderHeader from '@/components/FolderHeader';
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Info } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import '../styles/markdown.css'; // We'll create this for markdown styling
 
 const Index = () => {
   const [rootDir, setRootDir] = useState<FileSystemDirectoryHandle | null>(null);
@@ -63,6 +64,35 @@ const Index = () => {
     }
   };
 
+  const selectFile = async () => {
+    try {
+      const file = await pickFile();
+      if (file) {
+        // When picking a single file, we don't have a directory structure
+        // So we'll just display that single file
+        setSelectedFile(file);
+        setFiles([file]); // Add the file to the explorer list
+        setRootDir(null); // Clear the root directory since we're not in a folder
+        
+        toast({
+          title: "File loaded successfully",
+          description: `${file.name} has been loaded.`
+        });
+      }
+    } catch (error) {
+      console.error('Error selecting file:', error);
+      
+      // Check if the error is an abort error (user canceled the file picker)
+      if ((error as Error).name !== 'AbortError') {
+        toast({
+          title: "Failed to load file",
+          description: (error as Error).message || "An unexpected error occurred",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   const toggleExplorer = () => {
     setIsExplorerVisible(!isExplorerVisible);
   };
@@ -74,6 +104,7 @@ const Index = () => {
         isExplorerVisible={isExplorerVisible}
         toggleExplorer={toggleExplorer}
         onSelectFolder={selectFolder}
+        onSelectFile={selectFile}
       />
       
       {isApiSupported === false && (
@@ -83,19 +114,6 @@ const Index = () => {
           <AlertDescription>
             This application requires the File System Access API, which is not supported in your browser.
             Please use Chrome 86+, Edge 86+, Opera 72+, or Brave 1.22+.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {isApiSupported === true && !rootDir && (
-        <Alert className="m-4">
-          <Info className="h-4 w-4" />
-          <AlertTitle>Getting Started</AlertTitle>
-          <AlertDescription>
-            Click "Select Folder" to open a folder from your computer and explore its contents.
-            <div className="mt-2 text-xs text-muted-foreground">
-              Note for Brave users: Make sure you've enabled "File System Access API" in brave://flags
-            </div>
           </AlertDescription>
         </Alert>
       )}

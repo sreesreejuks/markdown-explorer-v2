@@ -1,4 +1,3 @@
-
 export interface FileEntry {
   name: string;
   kind: 'file' | 'directory';
@@ -13,7 +12,6 @@ export async function getFilesFromDirectory(
 ): Promise<FileEntry[]> {
   const entries: FileEntry[] = [];
   
-  // Use for-await loop with properly typed AsyncIterable
   for await (const entry of directoryHandle.values()) {
     const entryPath = path ? `${path}/${entry.name}` : entry.name;
     
@@ -37,7 +35,6 @@ export async function getFilesFromDirectory(
     }
   }
   
-  // Sort directories first, then files, both alphabetically
   return entries.sort((a, b) => {
     if (a.kind === b.kind) {
       return a.name.localeCompare(b.name);
@@ -69,7 +66,6 @@ export function isTextFile(fileName: string): boolean {
   );
 }
 
-// Get appropriate syntax highlighting language from file extension
 export function getLanguageFromFileName(fileName: string): string {
   const extension = fileName.split('.').pop()?.toLowerCase() || '';
   
@@ -106,4 +102,35 @@ export function getLanguageFromFileName(fileName: string): string {
   }
   
   return languageMap[extension] || 'plaintext';
+}
+
+export async function pickFile(): Promise<FileEntry | null> {
+  try {
+    const [fileHandle] = await window.showOpenFilePicker({
+      multiple: false,
+      types: [
+        {
+          description: 'Text Files',
+          accept: {
+            'text/*': ['.txt', '.md', '.markdown', '.html', '.css', '.js', '.ts', '.jsx', '.tsx', '.json', '.xml', '.yml', '.yaml', '.csv']
+          }
+        }
+      ]
+    });
+    
+    if (fileHandle) {
+      return {
+        name: fileHandle.name,
+        kind: 'file',
+        handle: fileHandle,
+        path: fileHandle.name
+      };
+    }
+    return null;
+  } catch (error) {
+    if ((error as Error).name !== 'AbortError') {
+      console.error('Error picking file:', error);
+    }
+    return null;
+  }
 }
