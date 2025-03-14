@@ -6,7 +6,8 @@ import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github.css'; // Light theme for code blocks
 import { FileEntry, readFileContent, isTextFile, getLanguageFromFileName } from '@/utils/fileSystem';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { FileText, Eye } from "lucide-react";
+import { FileText, Eye, Copy, Check } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface FileViewerProps {
   file: FileEntry | null;
@@ -17,7 +18,9 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'raw' | 'preview'>('raw');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const isMarkdown = file?.name.toLowerCase().endsWith('.md') || false;
+  const { toast } = useToast();
 
   useEffect(() => {
     async function loadFileContent() {
@@ -60,6 +63,34 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
   useEffect(() => {
     setViewMode('raw');
   }, [file?.path]);
+
+  // Reset copied state after a delay
+  useEffect(() => {
+    if (copiedCode) {
+      const timer = setTimeout(() => {
+        setCopiedCode(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copiedCode]);
+
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      toast({
+        title: "Copied to clipboard",
+        description: "Code has been copied successfully",
+      });
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast({
+        title: "Copy failed",
+        description: "Could not copy code to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!file) {
     return (
@@ -116,9 +147,23 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
               pre: ({node, children, className, ...props}) => {
                 const language = className ? className.replace('language-', '') : '';
                 return (
-                  <pre data-language={language || 'Code'} {...props}>
-                    {children}
-                  </pre>
+                  <div className="relative">
+                    <pre data-language={language || 'Code'} {...props}>
+                      {children}
+                      <button 
+                        onClick={() => {
+                          // Extract the code text from the pre element
+                          const codeElement = (children as React.ReactElement)?.props?.children?.[0];
+                          const codeText = codeElement?.props?.children?.[0] || '';
+                          copyToClipboard(codeText);
+                        }}
+                        className="absolute top-3 right-3 p-1 rounded-md bg-white/10 text-gray-400 hover:text-gray-700 focus:outline-none transition"
+                        title="Copy code"
+                      >
+                        {copiedCode ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      </button>
+                    </pre>
+                  </div>
                 );
               }
             }}
