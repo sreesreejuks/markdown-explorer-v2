@@ -1,7 +1,7 @@
 
-# Folder Finder Wizard
+# Markdown Explorer
 
-A web application that allows you to open folders from your local system and browse their contents. The application displays a file explorer that can be toggled on and off, and allows you to view the contents of text files.
+A web application that allows you to open folders from your local system and browse their contents. The application displays a file explorer that can be toggled on and off, and allows you to view the contents of text files with special support for Markdown files.
 
 ## Features
 
@@ -9,7 +9,13 @@ A web application that allows you to open folders from your local system and bro
 - Browse files and folders in a hierarchical tree view
 - View the contents of text files
 - Toggle the file explorer visibility
+- Mac OS style markdown rendering with syntax highlighting
+- Copy code blocks to clipboard with notification
 - Docker support for easy deployment
+
+## Author Collaboration
+
+Created by Lovable and Sreeju
 
 ## Local Development
 
@@ -37,10 +43,10 @@ npm run dev
 
 ```bash
 # Build the Docker image
-docker build -t folder-finder-wizard .
+docker build -t markdown-explorer .
 
 # Run the container
-docker run -p 8080:80 folder-finder-wizard
+docker run -p 8080:80 markdown-explorer
 ```
 
 ### Using Docker Compose
