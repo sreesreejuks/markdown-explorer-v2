@@ -17,7 +17,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
   const [content, setContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'raw' | 'preview'>('raw');
+  const [viewMode, setViewMode] = useState<'raw' | 'preview'>('preview');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const isMarkdown = file?.name.toLowerCase().endsWith('.md') || false;
   const { toast } = useToast();
@@ -61,7 +61,9 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
 
   // Reset view mode to raw when changing files
   useEffect(() => {
-    setViewMode('raw');
+    if (file) {
+       setViewMode(file.name.toLowerCase().endsWith('.md') ? 'preview' : 'raw');
+     }
   }, [file?.path]);
 
   // Reset copied state after a delay
