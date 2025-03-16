@@ -59,7 +59,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
     loadFileContent();
   }, [file]);
 
-  // Reset view mode to raw when changing files
+  // Reset view mode to preview when changing files
   useEffect(() => {
     if (file) {
        setViewMode(file.name.toLowerCase().endsWith('.md') ? 'preview' : 'raw');
@@ -118,6 +118,25 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
     );
   }
 
+  // Add line numbers to source view
+  const renderSourceWithLineNumbers = () => {
+    if (!content) return null;
+    
+    const lines = content.split('\n');
+    return (
+      <div className="font-mono text-sm">
+        {lines.map((line, index) => (
+          <div key={index} className="flex">
+            <div className="text-gray-400 select-none w-10 text-right pr-2 mr-2 border-r border-gray-200">
+              {index + 1}
+            </div>
+            <div className="whitespace-pre-wrap flex-1">{line}</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="h-full bg-white overflow-auto flex flex-col">
       <div className="sticky top-0 bg-white border-b p-2 text-sm font-medium z-10 flex justify-between items-center">
@@ -168,6 +187,53 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
                     </button>
                   </div>
                 );
+              },
+              // Add anchor links to headings
+              h1: ({node, children, ...props}) => {
+                const id = children?.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                return <h1 id={id} {...props}><a href={`#${id}`} className="no-underline">{children}</a></h1>;
+              },
+              h2: ({node, children, ...props}) => {
+                const id = children?.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                return <h2 id={id} {...props}><a href={`#${id}`} className="no-underline">{children}</a></h2>;
+              },
+              h3: ({node, children, ...props}) => {
+                const id = children?.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                return <h3 id={id} {...props}><a href={`#${id}`} className="no-underline">{children}</a></h3>;
+              },
+              h4: ({node, children, ...props}) => {
+                const id = children?.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                return <h4 id={id} {...props}><a href={`#${id}`} className="no-underline">{children}</a></h4>;
+              },
+              h5: ({node, children, ...props}) => {
+                const id = children?.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                return <h5 id={id} {...props}><a href={`#${id}`} className="no-underline">{children}</a></h5>;
+              },
+              h6: ({node, children, ...props}) => {
+                const id = children?.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                return <h6 id={id} {...props}><a href={`#${id}`} className="no-underline">{children}</a></h6>;
+              },
+              // Handle anchor links in table of contents
+              a: ({node, href, children, ...props}) => {
+                if (href?.startsWith('#')) {
+                  return (
+                    <a 
+                      href={href} 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const targetId = href.substring(1);
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                          targetElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }} 
+                      {...props}
+                    >
+                      {children}
+                    </a>
+                  );
+                }
+                return <a href={href} {...props}>{children}</a>;
               }
             }}
           >
@@ -175,9 +241,9 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
           </ReactMarkdown>
         </div>
       ) : (
-        <pre className="p-4 text-sm whitespace-pre-wrap font-mono">
-          {content}
-        </pre>
+        <div className="p-4">
+          {renderSourceWithLineNumbers()}
+        </div>
       )}
     </div>
   );

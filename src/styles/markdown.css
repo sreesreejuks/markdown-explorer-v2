@@ -1,3 +1,4 @@
+
 /* Markdown styling */
 .markdown-body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -16,6 +17,7 @@
   margin-bottom: 16px;
   font-weight: 600;
   line-height: 1.25;
+  scroll-margin-top: 70px;
 }
 
 .markdown-body h1 {
@@ -32,6 +34,26 @@
 
 .markdown-body h3 {
   font-size: 1.25em;
+}
+
+.markdown-body h1 a,
+.markdown-body h2 a,
+.markdown-body h3 a,
+.markdown-body h4 a,
+.markdown-body h5 a,
+.markdown-body h6 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.markdown-body h1 a:hover,
+.markdown-body h2 a:hover,
+.markdown-body h3 a:hover,
+.markdown-body h4 a:hover,
+.markdown-body h5 a:hover,
+.markdown-body h6 a:hover {
+  text-decoration: none;
+  color: #0366d6;
 }
 
 .markdown-body p,
@@ -59,13 +81,14 @@
   position: relative;
   word-wrap: normal;
   padding: 40px 16px 16px;
-  overflow: auto;
+  overflow: hidden;
   font-size: 85%;
   line-height: 1.45;
   background-color: #fff;
   border-radius: 5px;
   border: 1px solid #e1e4e8;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  white-space: pre-wrap;
 }
 
 /* Mac OS window traffic lights */
@@ -102,7 +125,7 @@
   margin: 0;
   font-size: 100%;
   word-break: normal;
-  white-space: pre;
+  white-space: pre-wrap;
   background: transparent;
   border: 0;
 }
@@ -159,6 +182,7 @@
 .hljs {
   background: #fff !important;
   color: #333 !important;
+  white-space: pre-wrap !important;
 }
 
 /* Ensure copy button is always on top */
