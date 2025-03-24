@@ -586,13 +586,6 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       <div className="flex items-center justify-between p-2 border-b" role="toolbar" aria-label="Editor Toolbar">
         {viewMode !== 'preview' && (
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              <span className="text-lg font-medium">
-                <span className="text-gray-400">Markdown</span>
-                <span className="text-black">Explorer</span>
-                <span className="text-xs text-gray-400 ml-1">v2</span>
-              </span>
-            </div>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
