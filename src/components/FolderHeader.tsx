@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Folder, Eye, EyeOff, File } from "lucide-react";
@@ -79,7 +78,11 @@ const FolderHeader: React.FC<FolderHeaderProps> = ({
       </div>
 
       <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
-        <h1 className="text-xl font-semibold">Markdown Explorer</h1>
+        <h1 className="text-xl font-medium flex items-center">
+          <span className="text-gray-400">Markdown</span>
+          <span className="text-black ml-1">Explorer</span>
+          <span className="text-xs text-gray-400 ml-1.5 mt-0.5 font-normal bg-gray-100 px-1.5 py-0.5 rounded-full">v2</span>
+        </h1>
       </Link>
       
       <div className="flex items-center gap-2">
