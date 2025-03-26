@@ -415,9 +415,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         </div>
         <div className="relative">
           {/* Line numbers */}
-          <div className="absolute left-0 top-[0.75rem] bottom-[0.75rem] w-[3rem] bg-gray-50 border-r border-gray-200 text-gray-400 text-xs select-none overflow-hidden font-mono">
+          <div className="absolute left-0 top-[0.75rem] bottom-[0.75rem] w-[3.5rem] bg-gray-50 border-r border-gray-200 text-gray-400 text-xs select-none overflow-hidden font-mono">
             {Array.from({ length: lines }, (_, i) => (
-              <div key={i} className="px-2 leading-[1.5rem] text-right">
+              <div key={i} className="px-2 leading-[1.5rem] text-center">
                 {i + 1}
               </div>
             ))}
@@ -428,7 +428,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             PreTag="div"
             customStyle={{
               margin: 0,
-              padding: '0.75rem 0.75rem 0.75rem 3rem',
+              padding: '0.75rem 0.75rem 0.75rem 4rem',
               borderRadius: '0 0 0.5rem 0.5rem',
               background: '#ffffff',
               fontSize: '0.875rem',
