@@ -726,6 +726,36 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                 remarkPlugins={[remarkGfm]}
                 components={{
                   code: CodeBlock,
+                  table: ({ children }) => (
+                    <table className="border-collapse border border-gray-300 my-4 text-sm w-full">
+                      {children}
+                    </table>
+                  ),
+                  thead: ({ children }) => (
+                    <thead className="bg-gray-50 border-b border-gray-300">
+                      {children}
+                    </thead>
+                  ),
+                  tbody: ({ children }) => (
+                    <tbody className="divide-y divide-gray-200">
+                      {children}
+                    </tbody>
+                  ),
+                  tr: ({ children }) => (
+                    <tr>
+                      {children}
+                    </tr>
+                  ),
+                  th: ({ children }) => (
+                    <th className="border border-gray-300 px-3 py-2 text-left font-medium text-gray-700">
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border border-gray-300 px-3 py-2 text-gray-600">
+                      {children}
+                    </td>
+                  ),
                   h1: ({ children, ...props }) => {
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
