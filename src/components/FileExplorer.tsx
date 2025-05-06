@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Folder, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -58,7 +57,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
               className="h-4 w-4 mr-2 flex-shrink-0" 
             />
           )}
-          <span className="truncate">{entry.name}</span>
+          <span className="truncate" title={entry.name}>{entry.name}</span>
         </div>
         
         {isDirectory && isExpanded && entry.children && (
