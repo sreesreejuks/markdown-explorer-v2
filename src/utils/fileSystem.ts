@@ -112,7 +112,7 @@ export function getLanguageFromFileName(fileName: string): string {
 
 export async function pickFile(): Promise<FileEntry | null> {
   // Check if File System Access API is supported
-  if ('showOpenFilePicker' in window) {
+  if (typeof window.showOpenFilePicker === 'function') {
     try {
       const [fileHandle] = await window.showOpenFilePicker({
         multiple: false,

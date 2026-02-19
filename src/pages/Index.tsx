@@ -20,9 +20,7 @@ const Index = () => {
   // Check for File System Access API support on component mount
   useEffect(() => {
     // More robust check for File System Access API support
-    const isFSASupported = 'showDirectoryPicker' in window ||
-      (navigator.userAgent.includes('Chrome') &&
-        parseInt(navigator.userAgent.match(/Chrome\/(\d+)/)?.[1] || '0', 10) >= 86);
+    const isFSASupported = typeof window.showDirectoryPicker === 'function';
 
     setIsApiSupported(isFSASupported);
 
@@ -34,7 +32,7 @@ const Index = () => {
 
   const selectFolder = async () => {
     try {
-      if ('showDirectoryPicker' in window) {
+      if (typeof window.showDirectoryPicker === 'function') {
         // Use File System Access API
         const dirHandle = await window.showDirectoryPicker({
           mode: 'read'
