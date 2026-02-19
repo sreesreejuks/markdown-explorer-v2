@@ -19,7 +19,7 @@ Created by Lovable and Sreeju
 
 ## Local Development
 
-### Prerequisites
+### Prerequisitesd
 
 - Node.js 16+
 - npm or yarn
