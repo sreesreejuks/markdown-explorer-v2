@@ -16,7 +16,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
 
   useEffect(() => {
     async function loadFileContent() {
-      if (!file || file.kind !== 'file' || !file.handle) {
+      if (!file || file.kind !== 'file' || (!file.handle && !file.file)) {
         setContent(null);
         setError(null);
         return;
@@ -24,7 +24,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
 
       setLoading(true);
       setError(null);
-      
+
       try {
         // Check if it's a text file
         if (!isTextFile(file.name)) {
@@ -32,14 +32,9 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
           setLoading(false);
           return;
         }
-        
-        // Ensure we're only passing a FileSystemFileHandle
-        if (file.handle.kind === 'file') {
-          const text = await readFileContent(file.handle);
-          setContent(text);
-        } else {
-          setError('Cannot read content from a directory.');
-        }
+
+        const text = await readFileContent(file);
+        setContent(text);
       } catch (err) {
         console.error('Error loading file:', err);
         setError('Failed to load file content.');

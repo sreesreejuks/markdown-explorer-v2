@@ -49,7 +49,7 @@ const TableDialog: React.FC<TableDialogProps> = ({ onInsert }) => {
       table += '|' + ' Header '.repeat(cols) + '|\n';
       // Alignment row with selected alignments
       table += '|' + Array(cols).fill(0).map((_, i) => {
-        switch(alignment[i] || 'left') {
+        switch (alignment[i] || 'left') {
           case 'center': return ' :---: |';
           case 'right': return ' ---: |';
           default: return ' :--- |';
@@ -158,35 +158,62 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const handleSave = async () => {
     try {
       let handle = fileHandle;
-      
+
       if (!handle) {
-        handle = await window.showSaveFilePicker({
-          suggestedName: fileName,
-          types: [{
-            description: 'Markdown files',
-            accept: {
-              'text/markdown': ['.md']
-            }
-          }]
+        if ('showSaveFilePicker' in window) {
+          handle = await window.showSaveFilePicker({
+            suggestedName: fileName,
+            types: [{
+              description: 'Markdown files',
+              accept: {
+                'text/markdown': ['.md']
+              }
+            }]
+          });
+          setFileHandle(handle);
+          setFileName(handle.name);
+        } else {
+          // Fallback: Download the file
+          const blob = new Blob([content], { type: 'text/markdown' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName.endsWith('.md') ? fileName : `${fileName}.md`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          if (onSave) {
+            onSave(content);
+          }
+
+          setIsEdited(false);
+          toast({
+            title: "Success",
+            description: "File downloaded successfully (Direct save not supported in this browser)",
+            duration: 3000
+          });
+          return;
+        }
+      }
+
+      if (handle) {
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+
+        if (onSave) {
+          onSave(content);
+        }
+
+        setIsEdited(false);
+        toast({
+          title: "Success",
+          description: "File saved successfully!",
+          duration: 2000
         });
-        setFileHandle(handle);
-        setFileName(handle.name);
       }
-
-      const writable = await handle.createWritable();
-      await writable.write(content);
-      await writable.close();
-
-      if (onSave) {
-        onSave(content);
-      }
-
-      setIsEdited(false);
-      toast({
-        title: "Success",
-        description: "File saved successfully!",
-        duration: 2000
-      });
     } catch (err) {
       console.error('Failed to save file:', err);
       toast({
@@ -214,24 +241,44 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         return;
       }
 
-      const [handle] = await window.showOpenFilePicker({
-        types: [{
-          description: 'Markdown files',
-          accept: {
-            'text/markdown': ['.md']
-          }
-        }]
-      });
+      if ('showOpenFilePicker' in window) {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{
+            description: 'Markdown files',
+            accept: {
+              'text/markdown': ['.md']
+            }
+          }]
+        });
 
-      const file = await handle.getFile();
-      const text = await file.text();
-      
-      setContent(text);
-      setFileName(handle.name);
-      setFileHandle(handle);
+        const file = await handle.getFile();
+        const text = await file.text();
+
+        setContent(text);
+        setFileName(handle.name);
+        setFileHandle(handle);
+      } else {
+        // Fallback: Use file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.md';
+        input.onchange = async (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            const text = await file.text();
+            setContent(text);
+            setFileName(file.name);
+            setFileHandle(undefined);
+            setIsEdited(false);
+          }
+        };
+        input.click();
+      }
     } catch (err) {
-      console.error('Failed to open file:', err);
-      alert('Failed to open file. Please try again.');
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Failed to open file:', err);
+        alert('Failed to open file. Please try again.');
+      }
     }
   };
 
@@ -272,18 +319,18 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           reader.onload = () => {
             const base64 = reader.result as string;
             const imageMarkdown = `\n![Image](${base64})\n`;
-            
+
             const textarea = textareaRef.current;
             if (!textarea) return;
 
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             const text = textarea.value;
-            
+
             textarea.value = text.substring(0, start) + imageMarkdown + text.substring(end);
             setContent(textarea.value);
             setIsEdited(true);
-            
+
             // Update cursor position
             textarea.selectionStart = textarea.selectionEnd = start + imageMarkdown.length;
           };
@@ -309,18 +356,18 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       reader.onload = () => {
         const base64 = reader.result as string;
         const imageMarkdown = `\n![Image](${base64})\n`;
-        
+
         const textarea = textareaRef.current;
         if (!textarea) return;
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
-        
+
         textarea.value = text.substring(0, start) + imageMarkdown + text.substring(end);
         setContent(textarea.value);
         setIsEdited(true);
-        
+
         // Update cursor position
         textarea.selectionStart = textarea.selectionEnd = start + imageMarkdown.length;
       };
@@ -337,36 +384,36 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
   const insertTable = useCallback((tableMarkdown: string) => {
     if (!textareaRef.current) return;
-    
+
     const textarea = textareaRef.current;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = textarea.value;
-    
+
     textarea.value = text.substring(0, start) + tableMarkdown + text.substring(end);
     setContent(textarea.value);
     setIsEdited(true);
-    
+
     // Update cursor position
     textarea.selectionStart = textarea.selectionEnd = start + tableMarkdown.length;
   }, []);
 
   const insertMarkdownSyntax = useCallback((syntax: { prefix: string, suffix?: string }) => {
     if (!textareaRef.current) return;
-    
+
     const textarea = textareaRef.current;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = textarea.value;
     const selectedText = text.substring(start, end);
-    
-    const newText = syntax.suffix 
+
+    const newText = syntax.suffix
       ? `${text.substring(0, start)}${syntax.prefix}${selectedText}${syntax.suffix}${text.substring(end)}`
       : `${text.substring(0, start)}${syntax.prefix}${text.substring(end)}`;
-    
+
     setContent(newText);
     setIsEdited(true);
-    
+
     // Update cursor position
     textarea.focus();
     const newCursorPos = start + syntax.prefix.length;
@@ -466,9 +513,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '**', suffix: '**' })}
                 aria-label="Bold"
               >
@@ -480,9 +527,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '_', suffix: '_' })}
                 aria-label="Italic"
               >
@@ -494,9 +541,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '# ' })}
                 aria-label="Heading 1"
               >
@@ -508,9 +555,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '## ' })}
                 aria-label="Heading 2"
               >
@@ -522,9 +569,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '- ' })}
                 aria-label="Bullet List"
               >
@@ -536,9 +583,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '1. ' })}
                 aria-label="Numbered List"
               >
@@ -550,9 +597,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '> ' })}
                 aria-label="Quote"
               >
@@ -564,9 +611,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => insertMarkdownSyntax({ prefix: '[', suffix: '](url)' })}
                 aria-label="Link"
               >
@@ -589,9 +636,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleNewFile}
                     aria-label="Create new file"
                   >
@@ -604,8 +651,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
                     aria-label="Upload image"
@@ -618,8 +665,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     aria-label="Insert table"
                   >
@@ -634,7 +681,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             </span>
           </div>
         )}
-        
+
         <div className="flex items-center space-x-2">
           <TooltipProvider>
             <ToggleGroup
@@ -670,9 +717,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             {viewMode !== 'preview' && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleSave}
                     disabled={!isEdited}
                   >
@@ -716,7 +763,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           </div>
         )}
         {(viewMode === 'preview' || viewMode === 'split') && (
-          <div 
+          <div
             className={`${viewMode === 'split' ? 'w-1/2' : 'w-full'} p-4 overflow-auto`}
             role="region"
             aria-label="Preview"
@@ -760,9 +807,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     return (
-                      <h1 
-                        id={id} 
-                        className="scroll-mt-20 text-3xl font-bold text-gray-900 border-b border-gray-200 pb-4 mb-6 mt-8 first:mt-2" 
+                      <h1
+                        id={id}
+                        className="scroll-mt-20 text-3xl font-bold text-gray-900 border-b border-gray-200 pb-4 mb-6 mt-8 first:mt-2"
                         {...props}
                       >
                         {children}
@@ -773,9 +820,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     return (
-                      <h2 
-                        id={id} 
-                        className="scroll-mt-20 text-2xl font-semibold text-gray-800 mt-8 mb-4" 
+                      <h2
+                        id={id}
+                        className="scroll-mt-20 text-2xl font-semibold text-gray-800 mt-8 mb-4"
                         {...props}
                       >
                         {children}
@@ -786,9 +833,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     return (
-                      <h3 
-                        id={id} 
-                        className="scroll-mt-20 text-xl font-medium text-gray-800 mt-6 mb-3" 
+                      <h3
+                        id={id}
+                        className="scroll-mt-20 text-xl font-medium text-gray-800 mt-6 mb-3"
                         {...props}
                       >
                         {children}
@@ -799,9 +846,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     return (
-                      <h4 
-                        id={id} 
-                        className="scroll-mt-20 text-lg font-medium text-gray-700 mt-6 mb-3" 
+                      <h4
+                        id={id}
+                        className="scroll-mt-20 text-lg font-medium text-gray-700 mt-6 mb-3"
                         {...props}
                       >
                         {children}
@@ -812,9 +859,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     return (
-                      <h5 
-                        id={id} 
-                        className="scroll-mt-20 text-base font-medium text-gray-700 mt-4 mb-2" 
+                      <h5
+                        id={id}
+                        className="scroll-mt-20 text-base font-medium text-gray-700 mt-4 mb-2"
                         {...props}
                       >
                         {children}
@@ -825,9 +872,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     const text = Array.isArray(children) ? children.join('') : String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     return (
-                      <h6 
-                        id={id} 
-                        className="scroll-mt-20 text-sm font-medium text-gray-600 mt-4 mb-2" 
+                      <h6
+                        id={id}
+                        className="scroll-mt-20 text-sm font-medium text-gray-600 mt-4 mb-2"
                         {...props}
                       >
                         {children}
@@ -858,8 +905,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     // Handle both relative and absolute URLs
                     if (href?.startsWith('#')) {
                       return (
-                        <a 
-                          href={href} 
+                        <a
+                          href={href}
                           className="text-primary hover:text-primary/80 underline"
                           onClick={(e) => {
                             e.preventDefault();
@@ -868,7 +915,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                             // Generate ID in the same way as headers
                             const processedId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                             const element = document.getElementById(processedId);
-                            
+
                             if (element) {
                               element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
@@ -880,7 +927,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     }
                     // For external links
                     return (
-                      <a 
+                      <a
                         href={href}
                         className="text-primary hover:text-primary/80 underline"
                         target="_blank"
