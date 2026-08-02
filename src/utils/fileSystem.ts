@@ -7,6 +7,42 @@ export interface FileEntry {
   path: string;
 }
 
+export function isFileSystemAccessSupported(): boolean {
+  return typeof window.showDirectoryPicker === 'function';
+}
+
+export type FolderPickResult = {
+  name: string;
+  handle?: FileSystemDirectoryHandle;
+  entries: FileEntry[];
+};
+
+export async function pickFolderWithAccess(): Promise<FolderPickResult | null> {
+  if (isFileSystemAccessSupported()) {
+    try {
+      const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+      const entries = await getFilesFromDirectory(dirHandle);
+      return { name: dirHandle.name, handle: dirHandle, entries };
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  const result = await pickFolder();
+  if (!result) {
+    return null;
+  }
+
+  if (Array.isArray(result)) {
+    return { name: 'Selected Folder', entries: result };
+  }
+
+  return { name: result.name, entries: result.entries };
+}
+
 export async function getFilesFromDirectory(
   directoryHandle: FileSystemDirectoryHandle,
   path = ''
@@ -111,8 +147,7 @@ export function getLanguageFromFileName(fileName: string): string {
 }
 
 export async function pickFile(): Promise<FileEntry | null> {
-  // Check if File System Access API is supported
-  if (typeof window.showOpenFilePicker === 'function') {
+  if (isFileSystemAccessSupported() && typeof window.showOpenFilePicker === 'function') {
     try {
       const [fileHandle] = await window.showOpenFilePicker({
         multiple: false,

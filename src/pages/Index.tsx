@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { FileEntry, getFilesFromDirectory, pickFile, pickFolder } from '@/utils/fileSystem';
+import { FileEntry, isFileSystemAccessSupported, pickFile, pickFolderWithAccess } from '@/utils/fileSystem';
 import FileExplorer from '@/components/FileExplorer';
 import FileViewer from '@/components/FileViewer';
 import FolderHeader from '@/components/FolderHeader';
@@ -17,56 +17,25 @@ const Index = () => {
   const [isApiSupported, setIsApiSupported] = useState<boolean | null>(null);
   const { toast } = useToast();
 
-  // Check for File System Access API support on component mount
   useEffect(() => {
-    // More robust check for File System Access API support
-    const isFSASupported = typeof window.showDirectoryPicker === 'function';
-
-    setIsApiSupported(isFSASupported);
-
-    // Log information to help debug
-    console.log('User Agent:', navigator.userAgent);
-    console.log('showDirectoryPicker in window:', 'showDirectoryPicker' in window);
-    console.log('API detected as supported:', isFSASupported);
+    setIsApiSupported(isFileSystemAccessSupported());
   }, []);
 
   const selectFolder = async () => {
     try {
-      if (typeof window.showDirectoryPicker === 'function') {
-        // Use File System Access API
-        const dirHandle = await window.showDirectoryPicker({
-          mode: 'read'
-        });
-
-        setRootDir({ name: dirHandle.name, handle: dirHandle });
-
-        // Load files from the selected directory
-        const fileEntries = await getFilesFromDirectory(dirHandle);
-        setFiles(fileEntries);
-        setSelectedFile(null);
-
-        toast({
-          title: "Folder loaded successfully",
-          description: `${dirHandle.name} has been loaded with ${fileEntries.length} items at the root level.`
-        });
-      } else {
-        // Use Fallback
-        const result = await pickFolder();
-        if (result) {
-          if (Array.isArray(result)) {
-            setFiles(result);
-            setRootDir({ name: "Selected Folder" });
-          } else {
-            setFiles(result.entries);
-            setRootDir({ name: result.name });
-            toast({
-              title: "Folder loaded successfully",
-              description: `${result.name} has been loaded.`
-            });
-          }
-          setSelectedFile(null);
-        }
+      const result = await pickFolderWithAccess();
+      if (!result) {
+        return;
       }
+
+      setRootDir({ name: result.name, handle: result.handle });
+      setFiles(result.entries);
+      setSelectedFile(null);
+
+      toast({
+        title: "Folder loaded successfully",
+        description: `${result.name} has been loaded with ${result.entries.length} items at the root level.`
+      });
     } catch (error) {
       console.error('Error selecting folder:', error);
 
