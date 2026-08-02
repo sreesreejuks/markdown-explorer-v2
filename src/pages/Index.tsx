@@ -1,12 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
-import { FileEntry, isFileSystemAccessSupported, pickFile, pickFolderWithAccess } from '@/utils/fileSystem';
+import React, { useState } from 'react';
+import { FileEntry, pickFile, pickFolderWithAccess } from '@/utils/fileSystem';
 import FileExplorer from '@/components/FileExplorer';
 import FileViewer from '@/components/FileViewer';
 import FolderHeader from '@/components/FolderHeader';
 import { useToast } from "@/components/ui/use-toast";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import '../styles/markdown.css'; // We'll create this for markdown styling
 
 const Index = () => {
@@ -14,12 +12,7 @@ const Index = () => {
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
   const [isExplorerVisible, setIsExplorerVisible] = useState<boolean>(true);
-  const [isApiSupported, setIsApiSupported] = useState<boolean | null>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    setIsApiSupported(isFileSystemAccessSupported());
-  }, []);
 
   const selectFolder = async () => {
     try {
@@ -92,17 +85,6 @@ const Index = () => {
         onSelectFolder={selectFolder}
         onSelectFile={selectFile}
       />
-
-      {isApiSupported === false && (
-        <Alert variant="default" className="m-4 bg-amber-50 border-amber-200">
-          <AlertCircle className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="text-amber-800">Limited Browser Support</AlertTitle>
-          <AlertDescription className="text-amber-700">
-            Your browser doesn't support direct file system access. You can still view files, but saving changes will download a new file instead of updating the original.
-            For the best experience, use a modern Chromium-based browser.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="flex flex-1 overflow-hidden">
         {isExplorerVisible && (

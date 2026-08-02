@@ -11,6 +11,29 @@ export function isFileSystemAccessSupported(): boolean {
   return typeof window.showDirectoryPicker === 'function';
 }
 
+export type FileSystemAccessLimitation = 'none' | 'insecure-context' | 'unsupported-browser';
+
+export function getFileSystemAccessLimitation(): FileSystemAccessLimitation {
+  if (isFileSystemAccessSupported()) {
+    return 'none';
+  }
+  if (window.isSecureContext === false) {
+    return 'insecure-context';
+  }
+  return 'unsupported-browser';
+}
+
+export function getSaveFallbackMessage(): string {
+  switch (getFileSystemAccessLimitation()) {
+    case 'insecure-context':
+      return 'File downloaded. Open the app via HTTPS or localhost to save changes directly to the original file.';
+    case 'unsupported-browser':
+      return 'File downloaded. Direct save requires Chrome, Edge, or Opera.';
+    default:
+      return 'File downloaded successfully.';
+  }
+}
+
 export type FolderPickResult = {
   name: string;
   handle?: FileSystemDirectoryHandle;

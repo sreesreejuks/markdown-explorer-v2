@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/components/ui/use-toast';
+import { getSaveFallbackMessage } from '@/utils/fileSystem';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ interface MarkdownEditorProps {
   initialContent?: string;
   onSave?: (content: string) => void;
   fileHandle?: FileSystemFileHandle;
+  fileName?: string;
 }
 
 interface CodeProps {
@@ -140,15 +142,23 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   initialContent = '',
   onSave,
   fileHandle: initialFileHandle,
+  fileName: initialFileName = 'untitled.md',
 }): JSX.Element => {
   const [content, setContent] = useState(initialContent);
   const [viewMode, setViewMode] = useState<'split' | 'preview' | 'edit'>('preview');
-  const [fileName, setFileName] = useState('untitled.md');
+  const [fileName, setFileName] = useState(initialFileName);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | undefined>(initialFileHandle);
   const [isEdited, setIsEdited] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setContent(initialContent);
+    setFileHandle(initialFileHandle);
+    setFileName(initialFileName);
+    setIsEdited(false);
+  }, [initialContent, initialFileHandle, initialFileName]);
 
   const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -160,7 +170,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       let handle = fileHandle;
 
       if (!handle) {
-        if ('showSaveFilePicker' in window) {
+        if (typeof window.showSaveFilePicker === 'function') {
           handle = await window.showSaveFilePicker({
             suggestedName: fileName,
             types: [{
@@ -191,8 +201,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           setIsEdited(false);
           toast({
             title: "Success",
-            description: "File downloaded successfully (Direct save not supported in this browser)",
-            duration: 3000
+            description: getSaveFallbackMessage(),
+            duration: 5000
           });
           return;
         }
@@ -241,7 +251,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         return;
       }
 
-      if ('showOpenFilePicker' in window) {
+      if (typeof window.showOpenFilePicker === 'function') {
         const [handle] = await window.showOpenFilePicker({
           types: [{
             description: 'Markdown files',

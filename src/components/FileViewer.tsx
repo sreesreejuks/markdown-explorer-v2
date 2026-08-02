@@ -96,6 +96,8 @@ const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
       <MarkdownEditor
         initialContent={content || ''}
         onSave={handleSave}
+        fileHandle={file.handle?.kind === 'file' ? file.handle : undefined}
+        fileName={file.name}
       />
     );
   }
