@@ -13,7 +13,7 @@ A web application that allows you to open folders from your local system and bro
 - Copy code blocks to clipboard with notification
 - Docker support for easy deployment
 
-## Author Collaboration
+## Author Collaboration.
 
 Created by Lovable and Sreeju
 
