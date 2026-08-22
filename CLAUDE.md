@@ -95,6 +95,15 @@ Vercel provides **HTTPS automatically** on `*.vercel.app` and custom domains. No
 
 Serves static files over **HTTP**. FSA unavailable; fallback pickers still work. Document this limitation; do not treat Docker HTTP the same as Vercel HTTPS.
 
+## Jira / Confluence
+
+- Jira project key: **MDX** (project "Markdown Explorer v2", Team-managed Kanban). Issue types: Epic,
+  Story, Task, Bug, Feature, Subtask.
+- Confluence space key: **MDX**, project "Markdown Explorer v2".
+- Both are set up on the `techsreejuks.atlassian.net` Atlassian instance (site: techsreejuks).
+- See the global CLAUDE.md "Jira / Confluence logging" section for the full workflow (issue hierarchy,
+  problem/fix format, confirm-before-create policy).
+
 ## Coding conventions
 
 - Match existing patterns: functional React components, `@/` imports, shadcn UI primitives
