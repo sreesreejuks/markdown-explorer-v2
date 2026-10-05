@@ -96,6 +96,11 @@ const Index = () => {
     setSearchTarget({ path: file.path, line, matchIndex });
   };
 
+  const isSearchTargetSelected =
+    searchTarget !== null &&
+    selectedFile !== null &&
+    searchTarget.path === selectedFile.path;
+
   return (
     <div className="h-screen flex flex-col bg-background">
       <FolderHeader
@@ -137,8 +142,8 @@ const Index = () => {
             key={selectedFile?.path ?? 'no-file'}
             file={selectedFile}
             searchQuery={searchQuery}
-            searchLine={searchTarget?.path === selectedFile?.path ? searchTarget.line : undefined}
-            searchMatchIndex={searchTarget?.path === selectedFile?.path ? searchTarget.matchIndex : 0}
+            searchLine={isSearchTargetSelected ? searchTarget.line : undefined}
+            searchMatchIndex={isSearchTargetSelected ? searchTarget.matchIndex : 0}
           />
         </div>
       </div>
