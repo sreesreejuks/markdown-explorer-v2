@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Folder, Eye, EyeOff, File } from "lucide-react";
+import { Folder, Eye, EyeOff, File, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import HelpModal from './HelpModal';
 import { pickFile } from '@/utils/fileSystem';
@@ -12,6 +12,9 @@ interface FolderHeaderProps {
   toggleExplorer: () => void;
   onSelectFolder: () => void;
   onSelectFile: () => void;
+  isSearchVisible: boolean;
+  canSearchFolder: boolean;
+  onToggleSearch: () => void;
 }
 
 const FolderHeader: React.FC<FolderHeaderProps> = ({
@@ -19,7 +22,10 @@ const FolderHeader: React.FC<FolderHeaderProps> = ({
   isExplorerVisible,
   toggleExplorer,
   onSelectFolder,
-  onSelectFile
+  onSelectFile,
+  isSearchVisible,
+  canSearchFolder,
+  onToggleSearch,
 }) => {
   const { toast } = useToast();
 
@@ -54,6 +60,16 @@ const FolderHeader: React.FC<FolderHeaderProps> = ({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <Button 
+            variant={isSearchVisible ? "secondary" : "ghost"}
+            size="icon"
+            onClick={onToggleSearch}
+            disabled={!canSearchFolder}
+            title={canSearchFolder ? "Search in folder" : "Select a folder to search its files"}
+            aria-label="Search in folder"
+          >
+            <Search className="h-5 w-5" />
+          </Button>
+          <Button
             variant="outline" 
             className="gap-2" 
             onClick={handleSelectFolder}
