@@ -98,7 +98,7 @@ const Index = () => {
         )}
 
         <div className="flex-1 h-full overflow-hidden">
-          <FileViewer file={selectedFile} />
+          <FileViewer key={selectedFile?.path ?? 'no-file'} file={selectedFile} />
         </div>
       </div>
     </div>
