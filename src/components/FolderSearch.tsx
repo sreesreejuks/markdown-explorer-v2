@@ -192,7 +192,7 @@ const FolderSearch: React.FC<FolderSearchProps> = ({
               >
                 <span className="mr-2 select-none text-muted-foreground">{match.line}</span>
                 <span className="break-all font-mono">
-                  <HighlightedText text={match.preview} query={trimmedQuery} />
+                  <HighlightedText text={match.preview} query={query.trim()} />
                 </span>
               </button>
             ))}
