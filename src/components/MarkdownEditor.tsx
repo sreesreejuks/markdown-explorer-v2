@@ -9,6 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/components/ui/use-toast';
 import { getSaveFallbackMessage } from '@/utils/fileSystem';
+import { highlightTextMatches } from '@/utils/searchHighlight';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,8 @@ interface MarkdownEditorProps {
   onSave?: (content: string) => void;
   fileHandle?: FileSystemFileHandle;
   fileName?: string;
+  searchQuery?: string;
+  searchMatchIndex?: number;
 }
 
 interface CodeProps {
@@ -143,6 +146,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   onSave,
   fileHandle: initialFileHandle,
   fileName: initialFileName = 'untitled.md',
+  searchQuery = '',
+  searchMatchIndex = 0,
 }): JSX.Element => {
   const [content, setContent] = useState(initialContent);
   const [viewMode, setViewMode] = useState<'split' | 'preview' | 'edit'>('preview');
@@ -152,6 +157,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const [isEdited, setIsEdited] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setContent(initialContent);
@@ -159,6 +165,12 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     setFileName(initialFileName);
     setIsEdited(false);
   }, [initialContent, initialFileHandle, initialFileName]);
+
+  useEffect(() => {
+    if (previewRef.current) {
+      highlightTextMatches(previewRef.current, searchQuery, searchMatchIndex);
+    }
+  }, [content, searchMatchIndex, searchQuery, viewMode]);
 
   const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -778,7 +790,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             role="region"
             aria-label="Preview"
           >
-            <div className="prose prose-slate max-w-none dark:prose-invert">
+            <div ref={previewRef} className="prose prose-slate max-w-none dark:prose-invert">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
