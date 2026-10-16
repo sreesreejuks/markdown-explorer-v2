@@ -59,6 +59,34 @@ docker-compose up -d
 docker-compose down
 ```
 
+## Releases
+
+Releases are created automatically from `main` by [semantic-release](https://github.com/semantic-release/semantic-release).
+
+Each run:
+
+1. Determines the next version from Conventional Commits since the last git tag
+2. Writes release notes to `CHANGELOG.md` and a GitHub Release
+3. Bumps `package.json` (the app is `private` and is **not** published to npm)
+
+Use these commit prefixes on `main`:
+
+| Prefix | Version bump |
+| --- | --- |
+| `feat:` | minor (`0.1.0` → `0.2.0`) |
+| `fix:`, `perf:`, `refactor:` | patch (`0.1.0` → `0.1.1`) |
+| `feat!:` or a `BREAKING CHANGE:` footer | major (`0.1.0` → `1.0.0`) |
+
+`chore:`, `docs:`, `test:`, `ci:`, and `build:` do not cut a release on their own. Commits without a Conventional prefix (for example `Add folder search`) are treated as a patch.
+
+To preview the next version and notes without publishing:
+
+```bash
+npm run release:dry-run
+```
+
+The same dry run is available as a manual **Release** workflow in GitHub Actions.
+
 ## Browser Compatibility
 
 This application uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) which is currently supported in:
