@@ -21,7 +21,7 @@ Created by Lovable and Sreeju
 
 ### Prerequisitesd
 
-- Node.js 16+
+- Node.js 22+
 - npm or yarn
 
 ### Running the application
@@ -36,6 +36,20 @@ npm install
 npm run dev
 ```
 4. Open `http://localhost:8080` in your browser
+
+### Using a VS Code Dev Container
+
+Open the repository in VS Code with the Dev Containers extension and choose
+**Reopen in Container**. The container uses Node.js 22 and runs `npm ci` after
+creation. Start the app in the integrated terminal with:
+
+```bash
+npm run dev -- --host 0.0.0.0
+```
+
+Open the forwarded port 8080 in your browser. The container isolates Node.js and
+project dependencies from the host operating system; Docker and the VS Code Dev
+Containers extension are required.
 
 ## Using Docker
 
