@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0](https://github.com/sreesreejuks/markdown-explorer-v2/compare/v1.0.1...v1.1.0) (2026-10-17)
+
+### Features
+
+* add VS Code dev container ([a80ea26](https://github.com/sreesreejuks/markdown-explorer-v2/commit/a80ea2631e7bf086fe32ef6a2a839f97325f1df1))
+
 ## [1.0.1](https://github.com/sreesreejuks/markdown-explorer-v2/compare/v1.0.0...v1.0.1) (2026-10-17)
 
 ### Bug Fixes
