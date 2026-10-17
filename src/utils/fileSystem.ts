@@ -229,7 +229,7 @@ export async function pickFolder(): Promise<FileEntry[] | { entries: FileEntry[]
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    // @ts-ignore - webkitdirectory is a non-standard attribute but widely supported
+    // @ts-expect-error - webkitdirectory is a non-standard attribute but widely supported
     input.webkitdirectory = true;
 
     input.onchange = () => {

@@ -160,13 +160,6 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setContent(initialContent);
-    setFileHandle(initialFileHandle);
-    setFileName(initialFileName);
-    setIsEdited(false);
-  }, [initialContent, initialFileHandle, initialFileName]);
-
-  useEffect(() => {
     if (previewRef.current) {
       highlightTextMatches(previewRef.current, searchQuery, searchMatchIndex);
     }
